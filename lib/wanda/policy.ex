@@ -14,12 +14,24 @@ defmodule Wanda.Policy do
 
   @spec handle_event(ExecutionRequested.t() | FactsGathered.t()) :: :ok | {:error, any}
   def handle_event(event) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle_event ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Logger.debug("Handling event #{inspect(event)}")
 
     handle(event)
   end
 
   defp handle(%ExecutionRequested{} = message) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %{
       execution_id: execution_id,
       group_id: group_id,
@@ -38,6 +50,12 @@ defmodule Wanda.Policy do
   end
 
   defp handle(%FactsGathered{} = message) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle2 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %{
       execution_id: execution_id,
       group_id: group_id,

@@ -9,6 +9,12 @@ defmodule Wanda.Messaging.Adapters.AMQP.Consumer do
 
   @impl GenRMQ.Consumer
   def init do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Consumer.init ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     config = Application.fetch_env!(:wanda, Wanda.Messaging.Adapters.AMQP)[:consumer]
 
     Keyword.merge(config, retry_delay_function: fn attempt -> :timer.sleep(2000 * attempt) end)
@@ -22,6 +28,12 @@ defmodule Wanda.Messaging.Adapters.AMQP.Consumer do
 
   @impl GenRMQ.Consumer
   def handle_message(%GenRMQ.Message{} = message) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Consumer.handle_message ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     case processor().process(message) do
       :ok -> GenRMQ.Consumer.ack(message)
       {:error, reason} -> handle_error(message, reason)
@@ -30,12 +42,24 @@ defmodule Wanda.Messaging.Adapters.AMQP.Consumer do
 
   @impl GenRMQ.Consumer
   def handle_error(message, reason) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Consumer.handle_error  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Logger.error("Unable to handle message: #{inspect(message)}. Reason: #{inspect(reason)}")
 
     GenRMQ.Consumer.reject(message)
   end
 
   def child_spec(opts) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Consumer.child_spec ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     %{
       id: __MODULE__,
       start: {__MODULE__, :start_link, [opts]},

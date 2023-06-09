@@ -18,6 +18,12 @@ defmodule WandaWeb do
   """
 
   def controller do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** controller ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     quote do
       use Phoenix.Controller, namespace: WandaWeb
 
@@ -27,6 +33,12 @@ defmodule WandaWeb do
   end
 
   def view do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** view ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     quote do
       use Phoenix.View,
         root: "lib/wanda_web/templates",
@@ -42,6 +54,12 @@ defmodule WandaWeb do
   end
 
   def router do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** router ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     quote do
       use Phoenix.Router
 
@@ -51,12 +69,24 @@ defmodule WandaWeb do
   end
 
   def channel do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** channel ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     quote do
       use Phoenix.Channel
     end
   end
 
   defp view_helpers do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** view_helpers ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     quote do
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View

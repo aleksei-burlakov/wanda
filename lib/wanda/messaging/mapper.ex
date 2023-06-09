@@ -24,6 +24,12 @@ defmodule Wanda.Messaging.Mapper do
 
   @spec to_execution_started(String.t(), String.t(), [Target.t()]) :: ExecutionStarted.t()
   def to_execution_started(execution_id, group_id, targets) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** to_execution_started ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %ExecutionStarted{
       execution_id: execution_id,
       group_id: group_id,
@@ -32,6 +38,12 @@ defmodule Wanda.Messaging.Mapper do
   end
 
   def to_facts_gathering_requested(execution_id, group_id, targets, checks) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** to_facts_gathering_requested ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %FactsGatheringRequested{
       execution_id: execution_id,
       group_id: group_id,
@@ -47,7 +59,14 @@ defmodule Wanda.Messaging.Mapper do
         },
         target_type
       ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** to_execution_completed ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %ExecutionCompleted{
+
       execution_id: execution_id,
       group_id: group_id,
       result: map_result(result),
@@ -69,6 +88,12 @@ defmodule Wanda.Messaging.Mapper do
         target_type: target_type,
         env: env
       }) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** from_execution_requested ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %{
       execution_id: execution_id,
       group_id: group_id,
@@ -90,6 +115,12 @@ defmodule Wanda.Messaging.Mapper do
         agent_id: agent_id,
         facts_gathered: facts_gathered
       }) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** from_facts_gathererd ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %{
       execution_id: execution_id,
       group_id: group_id,
@@ -102,6 +133,12 @@ defmodule Wanda.Messaging.Mapper do
   end
 
   defp map_target(%Target{agent_id: agent_id, checks: checks}) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_target ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %Trento.Checks.V1.Target{agent_id: agent_id, checks: checks}
   end
 
@@ -109,6 +146,12 @@ defmodule Wanda.Messaging.Mapper do
          %Target{agent_id: agent_id, checks: target_checks},
          checks
        ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** to_facts_gathering_requested_target ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     fact_requests =
       checks
       |> Enum.filter(&(&1.id in target_checks))
@@ -120,6 +163,12 @@ defmodule Wanda.Messaging.Mapper do
   end
 
   defp map_fact_requests(check_id, facts) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_fact_requests ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.map(facts, fn %Catalog.Fact{name: name, gatherer: gatherer, argument: argument} ->
       %FactRequest{check_id: check_id, name: name, gatherer: gatherer, argument: argument}
     end)
@@ -136,14 +185,32 @@ defmodule Wanda.Messaging.Mapper do
     do: %Fact{check_id: check_id, name: name, value: map_value(value)}
 
   defp map_value(%{kind: {:list_value, %{values: values}}}) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_value ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.map(values, &map_value/1)
   end
 
   defp map_value(%{kind: {:struct_value, %{fields: fields}}}) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_value2 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.into(fields, %{}, fn {key, value} -> {key, map_value(value)} end)
   end
 
   defp map_value(%{kind: {:number_value, value}}) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_value3 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     truncated = trunc(value)
     if truncated == value, do: truncated, else: value
   end
@@ -153,6 +220,12 @@ defmodule Wanda.Messaging.Mapper do
   end
 
   defp map_value(%{kind: {_, value}}) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_value4 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     value
   end
 

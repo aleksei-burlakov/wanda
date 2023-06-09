@@ -40,6 +40,11 @@ defmodule Wanda.Executions.Server do
   def start_execution(execution_id, group_id, targets, target_type, env, config \\ []) do
     env = Map.put(env, "target_type", target_type)
 
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** start_execution ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     checks =
       targets
       |> Target.get_checks_from_targets()
@@ -60,6 +65,12 @@ defmodule Wanda.Executions.Server do
     do: group_id |> via_tuple() |> GenServer.cast({:receive_facts, execution_id, agent_id, facts})
 
   def start_link(opts) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** start_link ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     group_id = Keyword.fetch!(opts, :group_id)
     config = Keyword.get(opts, :config, [])
 
@@ -79,6 +90,12 @@ defmodule Wanda.Executions.Server do
 
   @impl true
   def init(%State{execution_id: execution_id} = state) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** init ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Logger.debug("Starting execution: #{execution_id}", state: inspect(state))
 
     {:ok, state, {:continue, :start_execution}}
@@ -96,6 +113,11 @@ defmodule Wanda.Executions.Server do
         } = state
       ) do
     engine = EvaluationEngine.new()
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle_continue ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
 
     facts_gathering_requested =
       Messaging.Mapper.to_facts_gathering_requested(execution_id, group_id, targets, checks)
@@ -117,6 +139,12 @@ defmodule Wanda.Executions.Server do
         {:receive_facts, execution_id, agent_id, facts},
         %State{execution_id: execution_id, targets: targets} = state
       ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle_cast ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     if Gathering.target?(targets, agent_id) do
       continue_or_complete_execution(state, agent_id, facts)
     else
@@ -134,6 +162,12 @@ defmodule Wanda.Executions.Server do
         {:receive_facts, execution_id, _, _},
         %State{group_id: group_id} = state
       ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle_cast2 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Logger.error("Execution #{execution_id} does not match for group #{group_id}")
 
     {:noreply, state}
@@ -153,6 +187,12 @@ defmodule Wanda.Executions.Server do
           agents_gathered: agents_gathered
         } = state
       ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle_info ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     targets =
       Enum.filter(targets, fn %Target{agent_id: agent_id} ->
         agent_id not in agents_gathered
@@ -192,6 +232,12 @@ defmodule Wanda.Executions.Server do
          agent_id,
          facts
        ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** continue_or_complete_execution ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     gathered_facts = Gathering.put_gathered_facts(gathered_facts, agent_id, facts)
     agents_gathered = [agent_id | agents_gathered]
 
@@ -209,6 +255,12 @@ defmodule Wanda.Executions.Server do
   end
 
   defp store_and_publish_execution_result(%Result{execution_id: execution_id} = result, env) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** store_and_publish_execution_result ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Executions.complete_execution!(execution_id, result)
 
     target_type = Map.get(env, "target_type", @default_target_type)
@@ -223,6 +275,12 @@ defmodule Wanda.Executions.Server do
   defp maybe_start_execution(_, _, _, [], _, _), do: {:error, :no_checks_selected}
 
   defp maybe_start_execution(execution_id, group_id, targets, checks, env, config) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** maybe_start_execution ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     case DynamicSupervisor.start_child(
            Supervisor,
            {__MODULE__,

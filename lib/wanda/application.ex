@@ -7,6 +7,12 @@ defmodule Wanda.Application do
 
   @impl true
   def start(_type, _args) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** start ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     children =
       [
         # Start the Ecto repository
@@ -30,6 +36,12 @@ defmodule Wanda.Application do
   # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** config_change ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     WandaWeb.Endpoint.config_change(changed, removed)
     :ok
   end

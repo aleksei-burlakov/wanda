@@ -7,6 +7,12 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 if config_env() in [:prod, :demo] do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** config_env() ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """

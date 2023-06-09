@@ -20,6 +20,12 @@ defmodule Wanda.Executions do
   """
   @spec create_execution!(String.t(), String.t(), [Target.t()]) :: Execution.t()
   def create_execution!(execution_id, group_id, targets) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** create_execution! ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     %Execution{}
     |> Execution.changeset(%{
       execution_id: execution_id,
@@ -35,6 +41,12 @@ defmodule Wanda.Executions do
   """
   @spec get_execution!(String.t()) :: Execution.t()
   def get_execution!(execution_id) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** get_execution! ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Repo.get!(Execution, execution_id)
   end
 
@@ -43,6 +55,12 @@ defmodule Wanda.Executions do
   """
   @spec get_last_execution_by_group_id!(String.t()) :: Execution.t()
   def get_last_execution_by_group_id!(group_id) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** get_execution_by_group_id! ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Execution
     |> last(:started_at)
     |> where(group_id: ^group_id)
@@ -56,6 +74,12 @@ defmodule Wanda.Executions do
   """
   @spec list_executions(map()) :: [Execution.t()]
   def list_executions(params \\ %{}) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** list_executions ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     page = Map.get(params, :page, 1)
     items_per_page = Map.get(params, :items_per_page, 10)
     group_id = Map.get(params, :group_id)
@@ -75,6 +99,12 @@ defmodule Wanda.Executions do
   """
   @spec count_executions(map()) :: non_neg_integer()
   def count_executions(params) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** count_executions ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     group_id = Map.get(params, :group_id)
 
     from(e in Execution)
@@ -89,6 +119,12 @@ defmodule Wanda.Executions do
   @spec complete_execution!(String.t(), Result.t()) ::
           Execution.t()
   def complete_execution!(execution_id, %Result{} = result) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** complete_execution! ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Execution
     |> Repo.get!(execution_id)
     |> Execution.changeset(%{

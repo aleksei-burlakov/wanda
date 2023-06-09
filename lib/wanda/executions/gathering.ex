@@ -10,6 +10,12 @@ defmodule Wanda.Executions.Gathering do
   """
   @spec put_gathered_facts(map(), String.t(), [Fact.t() | FactError.t()]) :: map()
   def put_gathered_facts(gathered_facts, agent_id, facts) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** put_gathered_facts ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Enum.reduce(
       facts,
       gathered_facts,
@@ -24,6 +30,12 @@ defmodule Wanda.Executions.Gathering do
   """
   @spec put_gathering_timeouts(map(), [Target.t()]) :: map()
   def put_gathering_timeouts(gathered_facts, timed_out_agents) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** put_gathering_timeouts ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Enum.reduce(timed_out_agents, gathered_facts, fn %Target{agent_id: agent_id, checks: checks},
                                                      acc ->
       Enum.reduce(checks, acc, fn check_id, accumulator ->
@@ -44,6 +56,12 @@ defmodule Wanda.Executions.Gathering do
   """
   @spec all_agents_sent_facts?([String.t()], [Target.t()]) :: boolean()
   def all_agents_sent_facts?(agents_gathered, targets) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** all_agents_sent_facts? ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Enum.sort(agents_gathered) ==
       targets
       |> Enum.map(& &1.agent_id)
