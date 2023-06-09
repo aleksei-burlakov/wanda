@@ -29,6 +29,12 @@ defmodule Wanda.Executions.Evaluation do
           [String.t()]
         ) :: Result.t()
   def execute(execution_id, group_id, checks, gathered_facts, env, timeouts \\ []) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** execute ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %Result{
       execution_id: execution_id,
       group_id: group_id,
@@ -39,6 +45,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp add_checks_result(%Result{} = result, checks, gathered_facts, env) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** add_checks_result ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     check_results =
       Enum.map(gathered_facts, fn {check_id, agents_facts} ->
         %Check{severity: severity, values: values, expectations: expectations} =
@@ -51,6 +63,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp build_check_result(check_id, severity, expectations, agents_facts, env, values) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** build_check_result ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %CheckResult{
       check_id: check_id
     }
@@ -66,6 +84,12 @@ defmodule Wanda.Executions.Evaluation do
          env,
          values
        ) do
+         
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** add_agents_results ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     agents_results =
       Enum.map(agents_facts, fn
         {agent_id, :timeout} ->
@@ -83,6 +107,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp add_agent_check_result_or_error(agent_id, facts, expectations, env, values) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** add_agent_check_result_or_error ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     if has_some_fact_gathering_error?(facts) do
       %AgentCheckError{
         agent_id: agent_id,
@@ -111,6 +141,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   def has_some_fact_gathering_error?(facts) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** has_some_fact_gathering_error?  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.any?(facts, fn
       %FactError{} -> true
       _ -> false
@@ -118,6 +154,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp add_scope(scope, namespace, namespaced_scope) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** add_scope ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Map.put(
       scope,
       namespace,
@@ -133,6 +175,12 @@ defmodule Wanda.Executions.Evaluation do
          },
          evaluation_scope
        ) do
+         
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** eval_value ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %Value{
       name: name,
       value: find_value(conditions, default, evaluation_scope)
@@ -140,6 +188,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp find_value(conditions, default, evaluation_scope) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** find_value ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.find_value(
       conditions,
       default,
@@ -167,6 +221,12 @@ defmodule Wanda.Executions.Evaluation do
          },
          evaluation_scope
        ) do
+         
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** eval_expectation ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     case Rhai.eval(expression, evaluation_scope) do
       {:ok, return_value} ->
         maybe_add_failure_message(
@@ -193,6 +253,12 @@ defmodule Wanda.Executions.Evaluation do
          nil,
          _evaluation_scope
        ) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** maybe_add_failure_message1 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %ExpectationEvaluation{expectation_evaluation | failure_message: @default_failure_message}
   end
 
@@ -201,6 +267,12 @@ defmodule Wanda.Executions.Evaluation do
          failure_message,
          evaluation_scope
        ) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** maybe_add_failure_message2 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     message =
       case Rhai.eval("`#{failure_message}`", evaluation_scope) do
         {:ok, interpolated_failure_message} -> interpolated_failure_message
@@ -215,6 +287,12 @@ defmodule Wanda.Executions.Evaluation do
          nil,
          _evaluation_scope
        ) do
+         
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** maybe_add_failure_message3 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %ExpectationResult{expectation_result | failure_message: @default_failure_message}
   end
 
@@ -223,6 +301,12 @@ defmodule Wanda.Executions.Evaluation do
          failure_message,
          _evaluation_scope
        ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** maybe_add_failure_message4 ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %ExpectationResult{expectation_result | failure_message: failure_message}
   end
 
@@ -232,6 +316,12 @@ defmodule Wanda.Executions.Evaluation do
          %CheckResult{agents_check_results: agents_check_results} = result,
          expectations
        ) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** add_expectation_results ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     expectation_results =
       agents_check_results
       |> Enum.filter(fn
@@ -270,6 +360,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp eval_expectation_result_or_error(type, expectation_evaluations, agents_check_results) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** eval_expectation_result_or_error ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     if has_error?(expectation_evaluations) or
          length(agents_check_results) != length(expectation_evaluations) do
       false
@@ -279,6 +375,12 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp has_error?(expectation_evaluations) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** has_error? ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.any?(expectation_evaluations, fn
       %ExpectationEvaluationError{} -> true
       _ -> false
@@ -286,12 +388,23 @@ defmodule Wanda.Executions.Evaluation do
   end
 
   defp eval_expectation_result(:expect_same, expectation_evaluations) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** eval_expectation_result(:expect_same, expectation_evaluations) ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     expectation_evaluations
     |> Enum.uniq_by(& &1.return_value)
     |> Kernel.length() == 1
   end
 
   defp eval_expectation_result(:expect, expectations_evaluations) do
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** eval_expectation_result(:expect, expectations_evaluations) ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.all?(expectations_evaluations, &(&1.return_value == true))
   end
 
@@ -305,19 +418,27 @@ defmodule Wanda.Executions.Evaluation do
     result =
       if Enum.all?(expectation_results, &(&1.result == true)) and
            not errors?(agents_check_results) do
-        :passing
+        {:ok, file} = File.open("wanda.stacktrace", [:append])
+        IO.binwrite(file, "*** aggregate_check_result ***\n")
+        IO.binwrite(file, Exception.format_stacktrace())
+        File.close(file)
+        :hui
       else
         Enum.find_value(agents_check_results, severity, fn
           %AgentCheckError{type: :timeout} -> :critical
           _ -> false
         end)
       end
-
     %CheckResult{check_result | result: result}
   end
 
   defp errors?(agents_check_results),
     do:
+      #{:ok, file} = File.open("wanda.stacktrace", [:append])
+      #IO.binwrite(file, "*** errors? ***\n")
+      #IO.binwrite(file, Exception.format_stacktrace())
+      #File.close(file)
+
       Enum.any?(agents_check_results, fn
         %AgentCheckError{} -> true
         _ -> false
@@ -330,6 +451,11 @@ defmodule Wanda.Executions.Evaluation do
       |> Enum.map(&{&1, result_weight(&1)})
       |> Enum.max_by(fn {_, weight} -> weight end)
       |> elem(0)
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** aggregate_execution_result ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
 
     %Result{execution | result: result}
   end
@@ -338,5 +464,5 @@ defmodule Wanda.Executions.Evaluation do
   # defp result_weight(:unknown), do: 3
   defp result_weight(:critical), do: 2
   defp result_weight(:warning), do: 1
-  defp result_weight(:passing), do: 0
+  defp result_weight(:hui), do: 0
 end

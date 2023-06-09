@@ -5,6 +5,12 @@ defmodule Wanda.Messaging do
 
   @spec publish(String.t(), any()) :: :ok | {:error, any()}
   def publish(topic, message) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** publish ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     adapter().publish(topic, message)
   end
 

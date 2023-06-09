@@ -11,6 +11,12 @@ defmodule Wanda.Messaging.Adapters.AMQP.Processor do
   require Logger
 
   def process(%GenRMQ.Message{payload: payload} = message) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Processor.process ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     Logger.debug("Received message: #{inspect(message)}")
 
     case Contracts.from_event(payload) do
