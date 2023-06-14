@@ -11,9 +11,9 @@ defmodule Wanda.Messaging do
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
     
-    adapter().publish(topic, message)
+    #adapter().publish(topic, message)
   end
 
-  defp adapter,
-    do: Application.fetch_env!(:wanda, :messaging)[:adapter]
+  #defp adapter,
+  #  do: Application.fetch_env!(:wanda, :messaging)[:adapter]
 end

@@ -20,6 +20,12 @@ defmodule Wanda.Catalog do
   """
   @spec get_catalog(%{String.t() => String.t()}) :: [Check.t()]
   def get_catalog(env \\ %{}) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** get_catalog ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     get_catalog_path()
     |> Path.join("/*")
     |> Path.wildcard()
@@ -32,6 +38,12 @@ defmodule Wanda.Catalog do
   """
   @spec get_check(String.t()) :: {:ok, Check.t()} | {:error, any}
   def get_check(check_id) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** get_check ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     with path <- Path.join(get_catalog_path(), "#{check_id}.yaml"),
          {:ok, file_content} <- YamlElixir.read_from_file(path),
          {:ok, check} <- map_check(file_content) do
@@ -55,6 +67,12 @@ defmodule Wanda.Catalog do
   """
   @spec get_checks([String.t()], map()) :: [Check.t()]
   def get_checks(checks_id, env) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** get_checks ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     checks_id
     |> Enum.flat_map(fn check_id ->
       case get_check(check_id) do
@@ -70,6 +88,12 @@ defmodule Wanda.Catalog do
   defp when_condition(%Check{when: nil}, _), do: true
 
   defp when_condition(%Check{when: when_clause}, env) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** when_condition ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     case Rhai.eval(when_clause, %{"env" => env}) do
       {:ok, true} -> true
       _ -> false
@@ -77,6 +101,12 @@ defmodule Wanda.Catalog do
   end
 
   defp get_catalog_path do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** get_catalog_path ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Application.fetch_env!(:wanda, Wanda.Catalog)[:catalog_path]
   end
 
@@ -91,6 +121,12 @@ defmodule Wanda.Catalog do
            "expectations" => expectations
          } = check
        ) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_check ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     {:ok,
      %Check{
        id: id,
@@ -114,6 +150,12 @@ defmodule Wanda.Catalog do
   defp map_severity(_), do: @default_severity
 
   defp map_expectation(%{"name" => name, "expect" => expression} = expectation) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_expectation  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %Expectation{
       name: name,
       type: :expect,
@@ -123,6 +165,12 @@ defmodule Wanda.Catalog do
   end
 
   defp map_expectation(%{"name" => name, "expect_same" => expression} = expectation) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_expectation ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %Expectation{
       name: name,
       type: :expect_same,
@@ -132,6 +180,12 @@ defmodule Wanda.Catalog do
   end
 
   defp map_fact(%{"name" => name, "gatherer" => gatherer} = fact) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_fact ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     %Fact{
       name: name,
       gatherer: gatherer,
@@ -140,12 +194,24 @@ defmodule Wanda.Catalog do
   end
 
   defp map_values(%{"values" => values}) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_values ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Enum.map(values, &map_value/1)
   end
 
   defp map_values(_), do: []
 
   defp map_value(%{"name" => name, "default" => default} = value) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** map_value ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     conditions =
       value
       |> Map.get("conditions", [])
