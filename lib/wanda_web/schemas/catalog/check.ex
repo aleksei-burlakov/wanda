@@ -7,6 +7,12 @@ defmodule WandaWeb.Schemas.CatalogResponse.Check do
 
   require OpenApiSpex
 
+
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** WandaWeb.Schemas.CatalogResponse.Check.CLASS_INITIALISATION ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+
   OpenApiSpex.schema(%{
     title: "Check",
     description: "A single check from the catalog",

@@ -6,8 +6,20 @@ defmodule WandaWeb.ApiSpec do
   alias OpenApiSpex.{Components, Info, OpenApi, Paths, SecurityScheme, Server}
   alias WandaWeb.{Endpoint, Router}
 
+    
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** WandaWeb.ApiSpec.CLASS_INITIALISATION ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+    
   @impl true
   def spec do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.ApiSpec.spec ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     # Discover request/response schemas from path specs
     OpenApiSpex.resolve_schema_modules(%OpenApi{
       servers: [
@@ -27,6 +39,12 @@ defmodule WandaWeb.ApiSpec do
   end
 
   defp endpoint do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.ApiSpec.endpoint ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
     if Process.whereis(Endpoint) do
       # Populate the Server info from a phoenix endpoint
       Server.from_endpoint(Endpoint)

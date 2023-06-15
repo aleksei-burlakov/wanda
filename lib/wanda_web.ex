@@ -17,6 +17,12 @@ defmodule WandaWeb do
   and import those modules here.
   """
 
+    
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** WandaWeb.CLASS_INITIALISATION ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+    
   def controller do
     
     {:ok, file} = File.open("wanda.stacktrace", [:append])
@@ -91,7 +97,6 @@ defmodule WandaWeb do
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
 
-      import WandaWeb.ErrorHelpers
       alias WandaWeb.Router.Helpers, as: Routes
     end
   end

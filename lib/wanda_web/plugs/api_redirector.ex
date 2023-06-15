@@ -23,6 +23,12 @@ defmodule WandaWeb.Plugs.ApiRedirector do
 
   @impl true
   def call(%Plug.Conn{path_info: [_ | path_parts], method: method} = conn, opts) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Plugs.ApiRedirector.call(%Plug.Conn{path_info: [_ | path_parts], method: method} = conn, opts)  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     latest_version = Keyword.get(opts, :latest_version)
     router = Keyword.get(opts, :router)
 
@@ -50,14 +56,32 @@ defmodule WandaWeb.Plugs.ApiRedirector do
   end
 
   defp build_path(version, path_parts) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Plugs.ApiRedirector.build_path(version, path_parts) ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     "/api/" <> version <> "/" <> Enum.join(path_parts, "/")
   end
 
   defp redirect(conn, to) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Plugs.ApiRedirector.redirect(conn, to) ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     Controller.redirect(conn, to: to <> conn.query_string)
   end
 
   defp route_exists?(router, path, verb) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Plugs.ApiRedirector.route_exists?(router, path, verb)  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     case Phoenix.Router.route_info(router, verb, path, "") do
       :error -> false
       %{plug: __MODULE__} -> false

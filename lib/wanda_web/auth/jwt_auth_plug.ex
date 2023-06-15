@@ -15,16 +15,37 @@ defmodule WandaWeb.Auth.JWTAuthPlug do
 
   require Logger
 
-  def init(opts), do: opts
+  #def init(opts), do: opts
+  def init(opts) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Auth.JWTAuthPlug.init  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
+    opts
+  end
 
   @doc """
     Read, validate and decode the JWT from authorization header at each call
   """
   def call(conn, _) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Auth.JWTAuthPlug.call(conn,_)  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     authenticate(conn)
   end
 
   defp authenticate(conn) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Auth.JWTAuthPlug.authenticate  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     with {:ok, jwt_token} <- read_token(conn),
          {:ok, claims} <- AccessToken.verify_and_validate(jwt_token) do
       put_private(conn, :user_id, claims["sub"])
@@ -38,6 +59,12 @@ defmodule WandaWeb.Auth.JWTAuthPlug do
   end
 
   defp read_token(conn) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.Auth.JWTAuthPlug.read_tocken  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     case get_req_header(conn, "authorization") do
       [bearer_token | _] ->
         token = bearer_token |> String.replace("Bearer", "") |> String.trim()

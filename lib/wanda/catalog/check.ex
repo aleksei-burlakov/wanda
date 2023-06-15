@@ -3,8 +3,14 @@ defmodule Wanda.Catalog.Check do
   Represents a check.
   """
 
-  alias Wanda.Catalog.{Expectation, Fact, Value}
+  alias Wanda.Catalog.{Expectation, Value}
 
+    
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** Wanda.Catalog.Check.CLASS_INITIALISATION ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+    
   @derive Jason.Encoder
   defstruct [
     :id,

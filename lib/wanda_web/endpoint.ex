@@ -29,8 +29,13 @@ defmodule WandaWeb.Endpoint do
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :wanda
   end
 
+
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** WandaWeb.Endpoint.CLASS_INITIALISATION  ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+
   plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],

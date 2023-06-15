@@ -25,6 +25,12 @@ defmodule WandaWeb.V1.CatalogController do
     ]
 
   def catalog(conn, params) do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.V1.CatalogController.catalog(conn, params)  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     catalog = Catalog.get_catalog(params)
     render(conn, catalog: catalog)
   end

@@ -15,6 +15,12 @@ defmodule Wanda.Catalog do
 
   @default_severity :critical
 
+    
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** Wanda.Catalog.CLASS_INITIALISATION ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+    
   @doc """
   Get the checks catalog with all checks
   """
@@ -83,14 +89,30 @@ defmodule Wanda.Catalog do
     |> Enum.filter(&when_condition(&1, env))
   end
 
-  defp when_condition(_, env) when env == %{}, do: true
+  defp when_condition(_, env) when env == %{} do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Wanda.Catalog.when_condition(_, env) when env == %{} ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
+    true
+  end
 
-  defp when_condition(%Check{when: nil}, _), do: true
+  defp when_condition(%Check{when: nil}, _) do
+    
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Wanda.Catalog.when_condition(%Check{when: nil}, _) ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
+    true
+  end
 
   defp when_condition(%Check{when: when_clause}, env) do
     
     {:ok, file} = File.open("wanda.stacktrace", [:append])
-    IO.binwrite(file, "*** when_condition ***\n")
+    IO.binwrite(file, "*** when_condition(%Check{when: when_clause}, env) ***\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
 

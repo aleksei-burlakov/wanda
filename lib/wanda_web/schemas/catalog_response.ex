@@ -8,6 +8,12 @@ defmodule WandaWeb.Schemas.CatalogResponse do
 
   require OpenApiSpex
 
+
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** WandaWeb.Schemas.CatalogResponse.CLASS_INITIALISATION  ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+
   OpenApiSpex.schema(%{
     title: "CatalogResponse",
     description: "Checks catalog listing response",

@@ -11,6 +11,12 @@ defmodule WandaWeb.Auth.AccessToken do
 
   @impl true
   def token_config do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** tocken_config ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     default_claims(iss: @iss, aud: @aud)
   end
 end

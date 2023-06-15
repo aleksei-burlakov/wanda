@@ -15,10 +15,6 @@ defmodule Wanda.Application do
     
     children =
       [
-        # Start the Ecto repository
-        Wanda.Repo,
-        # Start the Telemetry supervisor
-        WandaWeb.Telemetry,
         # Start the Endpoint (http/https)
         WandaWeb.Endpoint,
         # Start a worker by calling: Wanda.Worker.start_link(arg)

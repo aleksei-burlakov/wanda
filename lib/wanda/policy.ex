@@ -12,6 +12,12 @@ defmodule Wanda.Policy do
 
   require Logger
 
+    
+  {:ok, file} = File.open("wanda.stacktrace", [:append])
+  IO.binwrite(file, "*** Wanda.Policy.CLASS_INITIALISATION ***\n")
+  IO.binwrite(file, Exception.format_stacktrace())
+  File.close(file)
+    
   @spec handle_event(ExecutionRequested.t() | FactsGathered.t()) :: :ok | {:error, any}
   def handle_event(event) do
     
@@ -65,6 +71,13 @@ defmodule Wanda.Policy do
     )
   end
 
-  defp execution_server_impl,
-    do: Application.fetch_env!(:wanda, Wanda.Policy)[:execution_server_impl]
+  defp execution_server_impl do
+ 
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** Wanda.Policy.execution_server_impl ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+    
+    Application.fetch_env!(:wanda, Wanda.Policy)[:execution_server_impl]
+  end
 end
