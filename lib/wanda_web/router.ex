@@ -3,12 +3,6 @@ defmodule WandaWeb.Router do
 
   @latest_api_version "v1"
 
-    
-  {:ok, file} = File.open("wanda.stacktrace", [:append])
-  IO.binwrite(file, "*** WandaWeb.Router.CLASS_INITIALISATION ***\n")
-  IO.binwrite(file, Exception.format_stacktrace())
-  File.close(file)
-    
   pipeline :api do
     plug :accepts, ["json"]
     plug OpenApiSpex.Plug.PutApiSpec, module: WandaWeb.ApiSpec

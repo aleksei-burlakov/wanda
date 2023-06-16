@@ -34,7 +34,6 @@ defmodule WandaWeb do
       use Phoenix.Controller, namespace: WandaWeb
 
       import Plug.Conn
-      alias WandaWeb.Router.Helpers, as: Routes
     end
   end
 
@@ -54,8 +53,6 @@ defmodule WandaWeb do
       import Phoenix.Controller,
         only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
 
-      # Include shared imports and aliases for views
-      unquote(view_helpers())
     end
   end
 
@@ -83,21 +80,6 @@ defmodule WandaWeb do
     
     quote do
       use Phoenix.Channel
-    end
-  end
-
-  defp view_helpers do
-    
-    {:ok, file} = File.open("wanda.stacktrace", [:append])
-    IO.binwrite(file, "*** view_helpers ***\n")
-    IO.binwrite(file, Exception.format_stacktrace())
-    File.close(file)
-    
-    quote do
-      # Import basic rendering functionality (render, render_layout, etc)
-      import Phoenix.View
-
-      alias WandaWeb.Router.Helpers, as: Routes
     end
   end
 
