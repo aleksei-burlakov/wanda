@@ -1,6 +1,7 @@
 defmodule Wanda.Catalog do
   @moduledoc """
   Function to interact with the checks catalog.
+  THAT'S ALL WE NEED TO GET THE CHECKS
   """
 
   alias Wanda.Catalog.{
