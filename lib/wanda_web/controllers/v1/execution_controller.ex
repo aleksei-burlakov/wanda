@@ -44,6 +44,16 @@ defmodule WandaWeb.V1.ExecutionController do
     executions = Executions.list_executions(params)
     total_count = Executions.count_executions(params)
 
+    # NOT CALLED
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.V1.ExecutionController.index(conn, params)  ***\n")
+    IO.binwrite(file, "conn=#{conn |> inspect()}\n")
+    IO.binwrite(file, "params=#{params |> inspect()}\n")
+    IO.binwrite(file, "executions=#{executions |> inspect()}\n")
+    IO.binwrite(file, "total_count=#{total_count |> inspect()}\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     render(conn, executions: executions, total_count: total_count)
   end
 
@@ -68,6 +78,14 @@ defmodule WandaWeb.V1.ExecutionController do
 
   def show(conn, %{id: execution_id}) do
     execution = Executions.get_execution!(execution_id)
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.V1.ExecutionController.show(conn, exec_id)  ***\n")
+    IO.binwrite(file, "conn=#{conn |> inspect()}\n")
+    IO.binwrite(file, "execution_id=#{execution_id |> inspect()}\n")
+    IO.binwrite(file, "execution=#{execution |> inspect()}\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
 
     render(conn, execution: execution)
   end
@@ -94,6 +112,15 @@ defmodule WandaWeb.V1.ExecutionController do
   def last(conn, %{id: group_id}) do
     execution = Executions.get_last_execution_by_group_id!(group_id)
 
+    # NOT CALLED
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.V1.ExecutionController.last(conn, group_id)  ***\n")
+    IO.binwrite(file, "conn=#{conn |> inspect()}\n")
+    IO.binwrite(file, "group_id=#{group_id |> inspect()}\n")
+    IO.binwrite(file, "execution=#{execution |> inspect()}\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     render(conn, :show, execution: execution)
   end
 
@@ -107,10 +134,7 @@ defmodule WandaWeb.V1.ExecutionController do
       unprocessable_entity: OpenApiSpex.JsonErrorResponse.response()
     ]
 
-  def start(
-        conn,
-        _params
-      ) do
+  def start(conn, _params) do
     %{
       execution_id: execution_id,
       group_id: group_id,
@@ -137,8 +161,26 @@ defmodule WandaWeb.V1.ExecutionController do
         }
       )
     end
+ 
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.V1.ExecutionController.start(conn, _params)  ***\n")
+    IO.binwrite(file, "conn=#{conn |> inspect()}\n")
+    IO.binwrite(file, "_params=#{_params |> inspect()}\n")
+    IO.binwrite(file, "execution_id=#{execution_id |> inspect()}\n")
+    IO.binwrite(file, "group_id=#{group_id |> inspect()}\n")
+    IO.binwrite(file, "targets=#{targets |> inspect()}\n")
+    IO.binwrite(file, "env=#{env |> inspect()}\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
   end
 
-  defp execution_server_impl,
-    do: Application.fetch_env!(:wanda, Wanda.Policy)[:execution_server_impl]
+  defp execution_server_impl do
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** WandaWeb.V1.ExecutionController.execution_server_impl  ***\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
+    Application.fetch_env!(:wanda, Wanda.Policy)[:execution_server_impl]
+  end
 end

@@ -30,7 +30,9 @@ defmodule Wanda.Messaging.Adapters.AMQP.Consumer do
   def handle_message(%GenRMQ.Message{} = message) do
     
     {:ok, file} = File.open("wanda.stacktrace", [:append])
-    IO.binwrite(file, "*** Consumer.handle_message ***\n")
+    IO.binwrite(file, "*** #{__MODULE__}.handle_messagee ***\n")
+    IO.binwrite(file, "message=#{message |> inspect()}\n")
+    IO.binwrite(file, "message.payload=#{message.payload |> inspect()}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
     

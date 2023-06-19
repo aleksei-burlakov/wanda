@@ -13,6 +13,8 @@ defmodule Wanda.Executions.Gathering do
     
     {:ok, file} = File.open("wanda.stacktrace", [:append])
     IO.binwrite(file, "*** put_gathered_facts ***\n")
+    IO.binwrite(file, "facts=#{facts |> inspect()}\n")
+    IO.binwrite(file, "gathered_facts=#{gathered_facts |> inspect()}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
     
@@ -33,6 +35,7 @@ defmodule Wanda.Executions.Gathering do
     
     {:ok, file} = File.open("wanda.stacktrace", [:append])
     IO.binwrite(file, "*** put_gathering_timeouts ***\n")
+    IO.binwrite(file, "gathered_facts=#{gathered_facts |> inspect()}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
     
@@ -59,6 +62,7 @@ defmodule Wanda.Executions.Gathering do
     
     {:ok, file} = File.open("wanda.stacktrace", [:append])
     IO.binwrite(file, "*** all_agents_sent_facts? ***\n")
+    IO.binwrite(file, "agents_gathered=#{agents_gathered |> inspect()}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
     

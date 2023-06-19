@@ -14,6 +14,8 @@ defmodule Wanda.Messaging.Adapters.AMQP.Processor do
     
     {:ok, file} = File.open("wanda.stacktrace", [:append])
     IO.binwrite(file, "*** Processor.process ***\n")
+    IO.binwrite(file, "message.payload=#{message.payload |> inspect()}\n")
+    IO.binwrite(file, "#{message.payload}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
     

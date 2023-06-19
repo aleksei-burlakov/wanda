@@ -35,7 +35,13 @@ defmodule Wanda.Executions.Evaluation do
   def execute(execution_id, group_id, checks, gathered_facts, env, timeouts \\ [], engine) do
 
     {:ok, file} = File.open("wanda.stacktrace", [:append])
-    IO.binwrite(file, "*** execute ***\n")
+    IO.binwrite(file, "*** Wanda.Executions.Evaluation.execute ***\n")
+    IO.binwrite(file, "execution_id=#{execution_id |> inspect()}\n")
+    IO.binwrite(file, "group_id=#{group_id |> inspect()}\n")
+    IO.binwrite(file, "checks=#{checks |> inspect()}\n")
+    IO.binwrite(file, "gathered_facts=#{gathered_facts |> inspect()}\n")
+    IO.binwrite(file, "env=#{env |> inspect()}\n")
+    IO.binwrite(file, "timeouts=#{timeouts |> inspect()}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
 

@@ -61,8 +61,19 @@ defmodule Wanda.Executions.Server do
   end
 
   @impl true
-  def receive_facts(execution_id, group_id, agent_id, facts),
-    do: group_id |> via_tuple() |> GenServer.cast({:receive_facts, execution_id, agent_id, facts})
+  def receive_facts(execution_id, group_id, agent_id, facts) do
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** #{__MODULE__}.receive_facts ***\n")
+    IO.binwrite(file, "execution_id=#{execution_id |> inspect()}\n")
+    IO.binwrite(file, "group_id=#{group_id |> inspect()}\n")
+    IO.binwrite(file, "group_id via tuple=#{group_id |> via_tuple() |> inspect()}\n")
+    IO.binwrite(file, "agent_id=#{agent_id |> inspect()}\n")
+    IO.binwrite(file, "facts=#{facts |> inspect()}\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
+    group_id |> via_tuple() |> GenServer.cast({:receive_facts, execution_id, agent_id, facts})
+  end
 
   def start_link(opts) do
 
@@ -202,6 +213,12 @@ defmodule Wanda.Executions.Server do
 
     gathered_facts = Gathering.put_gathering_timeouts(gathered_facts, targets)
 
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** handle_info ***\n")
+    IO.binwrite(file, "gathered_facts=#{gathered_facts |> inspect()}\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
+
     result =
       Evaluation.execute(
         execution_id,
@@ -234,12 +251,21 @@ defmodule Wanda.Executions.Server do
        ) do
 
     {:ok, file} = File.open("wanda.stacktrace", [:append])
-    IO.binwrite(file, "*** continue_or_complete_execution ***\n")
+    IO.binwrite(file, "*** #{__MODULE__}.continue_or_complete_execution BEFORE ***\n")
+    IO.binwrite(file, "gathered_facts=#{gathered_facts |> inspect()}\n")
+    IO.binwrite(file, "facts=#{facts |> inspect()}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
 
     gathered_facts = Gathering.put_gathered_facts(gathered_facts, agent_id, facts)
     agents_gathered = [agent_id | agents_gathered]
+
+    {:ok, file} = File.open("wanda.stacktrace", [:append])
+    IO.binwrite(file, "*** #{__MODULE__}.continue_or_complete_execution AFTER ***\n")
+    IO.binwrite(file, "gathered_facts=#{gathered_facts |> inspect()}\n")
+    IO.binwrite(file, "facts=#{facts |> inspect()}\n")
+    IO.binwrite(file, Exception.format_stacktrace())
+    File.close(file)
 
     state = %State{state | gathered_facts: gathered_facts, agents_gathered: agents_gathered}
 
@@ -247,6 +273,7 @@ defmodule Wanda.Executions.Server do
       result = Evaluation.execute(execution_id, group_id, checks, gathered_facts, env, engine)
 
       store_and_publish_execution_result(result, env)
+
 
       {:stop, :normal, state}
     else
@@ -278,6 +305,12 @@ defmodule Wanda.Executions.Server do
 
     {:ok, file} = File.open("wanda.stacktrace", [:append])
     IO.binwrite(file, "*** maybe_start_execution ***\n")
+    IO.binwrite(file, "execution_id=#{execution_id |> inspect()}\n")
+    IO.binwrite(file, "group_id=#{group_id |> inspect()}\n")
+    IO.binwrite(file, "targets=#{targets |> inspect()}\n")
+    IO.binwrite(file, "checks=#{checks |> inspect()}\n")
+    IO.binwrite(file, "env=#{env |> inspect()}\n")
+    IO.binwrite(file, "__MODULE__=#{__MODULE__ |> inspect()}\n")
     IO.binwrite(file, Exception.format_stacktrace())
     File.close(file)
 
