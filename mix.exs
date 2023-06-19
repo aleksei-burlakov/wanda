@@ -10,7 +10,7 @@ defmodule Wanda.MixProject do
       version: @version,
       elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
-      start_permanent: Mix.env() == :prod,
+      start_permanent: Mix.env() == :dev,
       aliases: aliases(),
       deps: deps(),
       name: "Wanda",
