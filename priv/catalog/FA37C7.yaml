@@ -1,0 +1,46 @@
+id: "FA37C7"
+name: cli_prefer or cli_ban should be absent
+group: Pacemaker
+description: |
+  location constraint starting with cli_prefer or cli_ban should be absent
+remediation: |
+  ## Abstract
+  location constraints starting with cli_prefer or cli_ban is created when there is migration of resources from one node to another. This migration is usually a deviation from the stable configuration and should be restored back in time. A presence of this contraint signifies that the cluster configuration is not in its stable or desired configuration.
+  ## Remediation
+  Execute the following command to set it:
+  ```
+  crm resource clear grp_TS2_ASCS00
+  ```
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/
+
+premium: true
+
+facts:
+  - name: cli_constraint_absent
+    gatherer: cibadmin
+    argument: cib.configuration.constraints
+
+expectations:
+  - name: expectations_cli_constraint_absent
+    expect: |
+      facts.cli_constraint_absent.contains("rsc_location") == false

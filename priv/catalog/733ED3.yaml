@@ -1,0 +1,44 @@
+id: "733ED3"
+name: colocation constraint present
+group: Pacemaker
+description: |
+  colocation constraint should be present with right score and order
+remediation: |
+  ## Abstract
+  Colocation constraint should be present with right score and order first ERS group and then ASCS group
+  ## Remediation
+  Follow the best practice guide to configure the colocation constraint in correct way.
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-the-colocation-constraints-between-ascs-and-ers
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-the-colocation-constraints-between-ascs-and-ers
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-the-colocation-constraints-between-ascs-and-ers
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-the-colocation-constraints-between-ascs-and-ers
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-the-colocation-constraints-between-ascs-and-ers
+
+premium: true
+
+facts:
+  - name: colocation_constraint_present
+    gatherer: cibadmin
+    argument: cib.configuration.constraints.rsc_colocation
+
+expectations:
+  - name: expectations_colocation_constraint_present
+    expect: |
+      facts.colocation_constraint_present
+           .find(|lvl1| lvl1.id.contains("col_") && lvl1.rsc.contains("ERS")).score == -5000

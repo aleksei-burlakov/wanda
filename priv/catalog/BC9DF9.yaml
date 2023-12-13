@@ -1,0 +1,28 @@
+id: "BC9DF9"
+name: Python3 version identical on all nodes
+group: OS and package versions
+description: |
+  Installed Python3 version is identical on all nodes
+remediation: |
+  ## Abstract
+  Installed Python3 version must be identical on all nodes of the cluster
+
+  ## Remediation
+  Install identical Python3 version on all nodes of the cluster
+
+  ## Reference
+  - https://documentation.suse.com/en-us/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+premium: true
+
+when: env.target_type == "cluster"
+
+facts:
+  - name: installed_python3_version
+    gatherer: package_version
+    argument: python3
+
+expectations:
+  - name: python3_version_identical
+    expect_same: facts.installed_python3_version[0].version
+    failure_message: Installed Python3 version is expected to be identical on all nodes, but differs

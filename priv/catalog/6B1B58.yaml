@@ -1,0 +1,50 @@
+id: "6B1B58"
+name: ASCS group resource stickiness
+group: Pacemaker
+description: |
+  ASCS group resource stickiness value is set to the recommended value
+remediation: |
+  ## Abstract
+  ASCS group should try to stay on its running node. To make this group to stick to its node we set the meta attribute resource-stickiness on this group resource.
+
+  ## Remediation
+  Execute the following command to set it:
+  ```
+  crm_resource --resource grp_TS2_ASCS00 --nvpair grp_TS2_ASCS00-meta_attributes-resource-stickiness --set-parameter resource-stickiness --meta --parameter-value 3000
+  ```
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/netweaver-ha-config-sles#configure_the_resource_groups_and_location_constraints
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+premium: true
+
+facts:
+  - name: ASCS_group_resource_stickiness
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_ASCS_group_resource_stickiness
+    expect: |
+      facts.ASCS_group_resource_stickiness
+           .find(|lvl1| lvl1.id.contains("SCS")).meta_attributes
+           .find(|lvl2| lvl2.id.contains("grp") && lvl2.id.contains("meta_attributes")).nvpair
+           .find(|lvl3| lvl3.name == "resource-stickiness").value == 3000

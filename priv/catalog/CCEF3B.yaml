@@ -1,0 +1,58 @@
+id: "CCEF3B"
+name: ASCS group exists
+group: Pacemaker
+description: |
+  ASCS group exists and has correct order
+remediation: |
+  ## Abstract
+  A group for ASCS resource exist and should have a correct order of IP, SAPStartSrv and then SAPInstance
+
+  ## Remediation
+  Follow the best practice guide to configure the ASCS group correctly
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.6
+
+premium: true
+
+facts:
+  - name: ASCS_group_exists
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_ASCS_group_exists_ip
+    expect: |
+      facts.ASCS_group_exists
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.id.contains("rsc_ip")).type == "IPaddr2"
+
+  - name: expectations_ASCS_group_exists_sapstartsrv
+    expect: |
+      facts.ASCS_group_exists
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.id.contains("SAPStartSrv")).type == "SAPStartSrv"
+
+  - name: expectations_ASCS_group_exists_sapinstance
+    expect: |
+      facts.ASCS_group_exists
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.id.contains("rsc_sap_")).type == "SAPInstance"

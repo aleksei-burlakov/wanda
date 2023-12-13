@@ -1,0 +1,54 @@
+id: "3EB4C0"
+name: SAPStartSrv resource is present
+group: Pacemaker
+description: |
+  SAPStartSrv resource should be present for simple mount setup.
+remediation: |
+  ## Abstract
+  SAPStartSrv resource should be present for simple mount setup in ASCS and ERS resource groups.
+
+  ## Remediation
+  Follow the best practice guide on simple mount to setup the SAPStartSrv resource.
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-cluster-resources
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-cluster-resources
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-cluster-resources
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-cluster-resources
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-cluster-resources
+
+premium: true
+
+facts:
+  - name: SAPStartSrv_present
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_SAPStartSrv_present_ASCS
+    expect: |
+      facts.SAPStartSrv_present
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.type == "SAPStartSrv").instance_attributes.nvpair
+           .find(|lvl3| lvl3.name == "InstanceName").value.contains("SCS")
+
+  - name: expectations_SAPStartSrv_present_ERS
+    expect: |
+      facts.SAPStartSrv_present
+           .find(|lvl1| lvl1.id.contains("ERS")).primitive
+           .find(|lvl2| lvl2.type == "SAPStartSrv").instance_attributes.nvpair
+           .find(|lvl3| lvl3.name == "InstanceName").value.contains("ERS")

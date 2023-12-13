@@ -1,0 +1,54 @@
+id: "802D5D"
+name: Filesystem resource is present
+group: Pacemaker
+description: |
+  Filesystem resource should be present for classical setup.
+remediation: |
+  ## Abstract
+  Filesystem resource should be present for classical setup in ASCS and ERS resource groups.
+
+  ## Remediation
+  Follow the best practice guide on simple mount to setup the Filesystem resource.
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP-S4HA10-setupguide-sle15/#id-configuring-cluster-resources
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP-S4HA10-setupguide-sle15/#id-configuring-cluster-resources
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP-S4HA10-setupguide-sle15/#id-configuring-cluster-resources
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP-S4HA10-setupguide-sle15/#id-configuring-cluster-resources
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP-S4HA10-setupguide-sle15/#id-configuring-cluster-resources
+
+premium: true
+
+facts:
+  - name: Filesystem_present
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_Filesystem_present_ASCS
+    expect: |
+      facts.Filesystem_present
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.type == "Filesystem").instance_attributes.nvpair
+           .find(|lvl3| lvl3.name == "directory").value.contains("SCS")
+
+  - name: expectations_Filesystem_present_ERS
+    expect: |
+      facts.Filesystem_present
+           .find(|lvl1| lvl1.id.contains("ERS")).primitive
+           .find(|lvl2| lvl2.type == "Filesystem").instance_attributes.nvpair
+           .find(|lvl3| lvl3.name == "directory").value.contains("ERS")
