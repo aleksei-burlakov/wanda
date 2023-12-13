@@ -1,0 +1,49 @@
+id: "0AA227"
+name: priority fencing delay
+group: Pacemaker
+description: |
+  Value for priority fencing delay is set in the cluster properties 'cib-bootstrap-options': priority-fencing-delay
+remediation: |
+  ## Abstract
+  Priority fencing is an optional improvement in a 2-node ASCS-ERS cluster.
+
+  ## Remediation
+  Execute the following command to set it:
+  ```
+  crm configure property priority-fencing-delay=60
+  ```
+
+  ## References
+  AZURE:
+
+    - https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-suse-pacemaker#create-a-stonith-device-on-the-pacemaker-cluster
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+premium: true
+
+facts:
+  - name: crm_config_properties
+    gatherer: cibadmin
+    argument: cib.configuration.crm_config.cluster_property_set
+
+expectations:
+  - name: expectations_priority_fencing_delay_set
+    expect: |
+      facts.crm_config_properties
+           .find(|item| item.id == "cib-bootstrap-options").nvpair
+           .find(|prop| prop.name == "priority-fencing-delay").value > 0

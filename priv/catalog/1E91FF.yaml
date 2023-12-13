@@ -1,0 +1,50 @@
+id: "1E91FF"
+name: MINIMAL_PROBE is set to "true" for ASCS instance
+group: Pacemaker
+description: |
+  Instance attribute MINIMAL_PROBE is set to "true" for ASCS instance
+remediation: |
+  ## Abstract
+  Instance attribute MINIMAL_PROBE should be set to "true" for the ASCS Instance
+
+  ## Remediation
+  Execute the following command to set it:
+  ```
+  crm_resource --resource rsc_sap_TS2_ASCS00  --set-parameter MINIMAL_PROBE --parameter-value "true"
+  ```
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.4
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.4
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.4
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.4
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.9.4
+
+premium: true
+
+facts:
+  - name: ASCS_instance_MINIMAL_PROBE
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_ASCS_instance_MINIMAL_PROBE
+    expect: |
+      facts.ASCS_instance_MINIMAL_PROBE
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.type == "SAPInstance").instance_attributes.nvpair
+           .find(|lvl3| lvl3.name == "MINIMAL_PROBE").value

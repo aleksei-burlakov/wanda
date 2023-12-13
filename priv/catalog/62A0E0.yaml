@@ -1,0 +1,50 @@
+id: "62A0E0"
+name: MINIMAL_PROBE is set to "true" for ERS instance
+group: Pacemaker
+description: |
+  Instance attribute MINIMAL_PROBE is set to "true" for ERS instance
+remediation: |
+  ## Abstract
+  Instance attribute MINIMAL_PROBE should be set to "true" for the ERS Instance
+
+  ## Remediation
+  Execute the following command to set it:
+  ```
+  crm_resource --resource rsc_sap_TS2_ERS10  --set-parameter MINIMAL_PROBE --parameter-value true
+  ```
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.10.5
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.10.5
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.10.5
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.10.5
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-1.8.8.10.5
+
+premium: true
+
+facts:
+  - name: ERS_instance_MINIMAL_PROBE
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_ERS_instance_MINIMAL_PROBE
+    expect: |
+      facts.ERS_instance_MINIMAL_PROBE
+           .find(|lvl1| lvl1.id.contains("ERS")).primitive
+           .find(|lvl2| lvl2.type == "SAPInstance").instance_attributes.nvpair
+           .find(|lvl3| lvl3.name == "MINIMAL_PROBE").value

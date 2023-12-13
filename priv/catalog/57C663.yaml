@@ -1,0 +1,51 @@
+id: "57C663"
+name: ASCS primitive resource stickiness
+group: Pacemaker
+description: |
+  ASCS primitive resource stickiness value is set to the recommended value
+remediation: |
+  ## Abstract
+  ASCS primitive resource should try to stay on its running node. To make this primitive resource to stick to its node we set the meta attribute resource-stickiness on this primitive resource.
+
+  ## Remediation
+  Execute the following command to set it:
+  ```
+  crm_resource --resource rsc_sap_TS2_ASCS00 --nvpair rsc_sap_TS2_ASCS00-meta_attributes-resource-stickiness --set-parameter resource-stickiness --meta --parameter-value 5000
+  ```
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-resources-for-the-ascs-instance
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-resources-for-the-ascs-instance
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/netweaver-ha-config-sles#ensa2
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-resources-for-the-ascs-instance
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-configuring-resources-for-the-ascs-instance
+
+premium: true
+
+facts:
+  - name: ASCS_primitive_resource_stickiness
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_ASCS_primitive_resource_stickiness
+    expect: |
+      facts.ASCS_primitive_resource_stickiness
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.type == "SAPInstance").meta_attributes
+           .find(|lvl3| lvl3.id.contains("rsc") && lvl3.id.contains("meta_attributes")).nvpair
+           .find(|lvl4| lvl4.name == "resource-stickiness").value == 5000

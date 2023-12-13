@@ -1,0 +1,51 @@
+id: "C15B2C"
+name: ASCS primitive resource priority
+group: Pacemaker
+description: |
+  ASCS primitive resource priority value is set to the recommended value
+remediation: |
+  ## Abstract
+  Priority fencing should be configured as per the recommendations and the priorty value for the ASCS instance resource should be set.
+
+  ## Remediation
+  Execute the following command to set it:
+  ```
+  crm_resource --resource rsc_sap_TS2_ASCS00  --nvpair rsc_sap_TS2_ASCS00-meta_attributes-priority --set-parameter priority --meta --parameter-value 100
+  ```
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-crm-configuration-fragments-of-the-two-node-cluster-with-priority-fencing
+
+premium: true
+
+facts:
+  - name: ASCS_primitive_resource_priority
+    gatherer: cibadmin
+    argument: cib.configuration.resources.group
+
+expectations:
+  - name: expectations_ASCS_primitive_resource_priority
+    expect: |
+      facts.ASCS_primitive_resource_priority
+           .find(|lvl1| lvl1.id.contains("SCS")).primitive
+           .find(|lvl2| lvl2.type == "SAPInstance").meta_attributes
+           .find(|lvl3| lvl3.id.contains("rsc") && lvl3.id.contains("meta_attributes")).nvpair
+           .find(|lvl4| lvl4.name == "priority").value == 100
