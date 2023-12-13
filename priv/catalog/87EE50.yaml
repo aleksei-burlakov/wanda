@@ -15,6 +15,10 @@ remediation: |
 
 premium: true
 
+metadata:
+  target_type: cluster
+  cluster_type: hana_scale_up
+
 facts:
   - name: package_systemd
     gatherer: package_version
