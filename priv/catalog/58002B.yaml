@@ -37,8 +37,12 @@ facts:
     gatherer: cibadmin
     argument: cib.configuration.constraints.rsc_order
 
+values:
+  - name: expected_order_score
+    default: "Optional"
+
 expectations:
   - name: expectations_order_constraint_present
     expect: |
       facts.order_constraint_present
-           .find(|lvl1| lvl1.id.contains("ord_") && lvl1.first.contains("SCS") && lvl1.then.contains("ERS")).kind == "Optional"
+           .find(|lvl1| lvl1.id.contains("ord_") && lvl1.first.contains("SCS") && lvl1.then.contains("ERS")).kind == values.expected_order_score
