@@ -1,0 +1,67 @@
+id: "TAHV5I"
+name: Enqueue replication server restart is disabled on ERS instance
+group: SAP profiles
+description: |
+  The enqueue replication server restart has to be disabled for the ERS instance. A restart would result in a loss of the enqueue locks.
+remediation: |
+  ## Abstract
+  The enqueue replication server restart is enabled and has to be disabled.
+
+  ## Remediation
+  Make sure to change `Restart_Program_00 = local $(_ENQR) pf=$(_PF) NR=$(SCSID)` to `Start_Program_00 = local $(_ENQR) pf=$(_PF) NR=$(SCSID)` in the ERS profile.
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  VMware:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+severity: critical
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: sap_profiles
+    gatherer: sap_profiles@v1
+
+expectations:
+  - name: enqr_startmode_is_start
+    expect: |
+      // TODO: define where to get SIDs from
+      for sid in facts.sap_profiles.keys() {
+        for inst in facts.sap_profiles[sid]["profiles"] {
+          if inst["name"].contains("ERS") {
+            return "Start_Program_00" in inst["content"] == true;
+          }
+        }
+      }
+    failure_message: The enqueue replication server restart is enabled and has to be disabled.

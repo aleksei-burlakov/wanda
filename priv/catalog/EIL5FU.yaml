@@ -1,0 +1,76 @@
+id: "EIL5FU"
+name: Simple Mount fstab entries
+group: Simple Mount
+description: |
+  All filesystems are mounted by the OS on all nodes, no filesystem is controlled by the HA cluster.
+  A fstab entry for /usr/sap/${SID} and /sapmnt/${SID} exists an every node.
+remediation: |
+  ## Abstract
+  Create the needed fstab entries.
+
+  ## Reference
+
+  - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/index.html
+  - https://www.suse.com/c/simple-mount-structure-for-sap-application-platform/
+  - https://www.suse.com/support/kb/doc/?id=000019944
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - simplemount
+
+facts:
+  - name: cib
+    gatherer: cibadmin
+  - name: fstab
+    gatherer: fstab@v1
+
+expectations:
+  - name: expectations_fstab_simple_mount_nfs
+    expect: |
+      // TODO: define where to get SIDs from
+      // cluster instance list, including check for simple_mount
+      let cluster_instances = [];
+      for group in facts.cib["cib"]["configuration"]["resources"]["group"] {
+        for primitive in group["primitive"] {
+          let prim = #{};
+          if primitive["type"] == "SAPInstance" {
+            prim += #{"rsc_id": primitive["id"]};
+            for nvpair in primitive["instance_attributes"]["nvpair"] {
+              if nvpair["name"] == "InstanceName" {
+                let instname = nvpair["value"];
+                prim += #{"sid": instname.split("_")[0]};
+                prim += #{"inst": instname.split("_")[1].sub_string(-2)};
+                prim += #{"vhost": instname.split("_")[2]};
+              }
+              if nvpair["name"] == "MINIMAL_PROBE" && nvpair["value"] == true {
+                prim += #{"simple_mount": true};
+              } else {
+                prim += #{"simple_mount": false};
+              }           
+            }
+            cluster_instances.push(prim);
+          } 
+        }
+      }
+      // loop cluster_instances to find simple_mount fstab entries
+      let ret = [];
+      for cl_inst in cluster_instances {
+        if cl_inst["simple_mount"] == true {
+          for line in facts.fstab {
+            return cl_inst;
+            if line["mount_point"].ends_with("/usr/sap/" + cl_inst["sid"]) || line["mount_point"].ends_with("/sapmnt/" + cl_inst["sid"]) {
+              ret.push(line["file_system_type"].starts_with("nfs"));
+            }
+          }
+        }
+      }
+      return ret.all(|v| v == true);
+    failure_message: There are missing fstab entries for the simple mount setup.
+

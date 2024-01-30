@@ -1,0 +1,43 @@
+id: "KAZAH5"
+name: Tune tcp_retries2
+group: Sysctl
+description: |
+  Set net.ipv4.tcp_retries2 <= 15 to avoid long client hangs after ERS instance failover. A recommended value would be 8.
+remediation: |
+  ## Abstract
+  net.ipv4.tcp_retries2 must be <= 15 to avoid long client hangs after ERS instance failover. A recommended value is 8.
+
+  ## Remediation
+  example:
+  `echo net.ipv4.tcp_retries2=8` > /etc/sysctl.d/tune_tcp_retries.conf
+  sysctl -p
+
+  ## Reference
+
+  - https://www.suse.com/de-de/support/kb/doc/?id=000019293
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: compare_sysctl_tcp_retries2_value
+    gatherer: sysctl@v1
+    argument: net.ipv4.tcp_retries2
+
+values:
+  - name: expected_sysctl_tcp_retries2_value
+    default: 15
+
+expectations:
+  - name: expectations_sysctl_tcp_retries2_value
+    expect: facts.compare_sysctl_tcp_retries2_value < values.expected_sysctl_tcp_retries2_value
+    failure_message: The value for net.ipv4.tcp_retries2 is ${facts.compare_sysctl_tcp_retries2_value} which is not smaler than the expected value ${values.expected_sysctl_tcp_retries2_value}.

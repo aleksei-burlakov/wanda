@@ -1,0 +1,49 @@
+id: "NEE8EE"
+name: Simple Mount systemd services sapping/sapping are enabled and started
+group: Simple Mount
+description: |
+  The Simple Mount systemd services sapping/sapping are enabled and started.
+remediation: |
+  ## Abstract
+  Make sure sapping/sappong are enabled and started.
+
+  ## Reference
+
+  - https://documentation.suse.com/sbp/sap-15/single-html/SAP-S4HA10-setupguide-simplemount-sle15/index.html#id-preparing-the-new-sapstartsrv-resource-agent-implementation
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - simplemount
+
+facts:
+  - name: service_sapping
+    gatherer: systemd@v2
+    argument: sapping.service
+  - name: service_sappong
+    gatherer: systemd@v2
+    argument: sappong.service
+
+expectations:
+  - name: expectations_sapping_active
+    expect: |
+      return facts.service_sapping["active_state"].starts_with("active")
+    failure_message: The sapping service is not active.
+  - name: expectations_sapping_enabled
+    expect: |
+      return facts.service_sapping["unit_file_state"].starts_with("enabled")
+    failure_message: The sapping service is not enabled at boot time.
+  - name: expectations_sappong_active
+    expect: |
+      return facts.service_sappong["active_state"].starts_with("active")
+    failure_message: The sappong service is not active.
+  - name: expectations_sappong_enabled
+    expect: |
+      return facts.service_sappong["unit_file_state"].starts_with("enabled")
+    failure_message: The sapp0ng service is not enabled at boot time.

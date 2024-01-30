@@ -1,0 +1,59 @@
+id: "VEIR2W"
+name: Instance Status
+group: Sapcontrol - Status
+description: |
+  GetSystemInstanceList returns "GREEN" for all configurations on all SIDs and Instances.
+  `sapcontrol -function GetSystemInstanceList` returns "GREEN".
+remediation: |
+  ## Abstract
+  Not all Instances are in an operable state.
+
+  ## Remediation
+  Check why your Instances are having issues by looking at the systems and Instances log files.
+  
+  ## References
+  AZURE:
+
+  AWS:
+
+  GCP:
+
+  SUSE / KVM:
+
+  Nutanix:
+
+  VMware:
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: system_instance_list
+    gatherer: sapcontrol@v1
+    argument: GetSystemInstanceList
+
+values:
+  - name: expected_instance_status
+    default: SAPControl-GREEN
+
+expectations:
+  - name: instance_status_green
+    expect: |
+      let ret = [];
+      // TODO: define where to get SIDs from
+      for sid in facts.system_instance_list.keys() {
+          for inst in facts.system_instance_list[sid] {
+              for entry in inst["output"] {
+                  ret.push(entry["dispstatus"]);    
+              }
+          }
+      }
+      return ret.all(|v| v == values.expected_instance_status);
+    failure_message: Sapcontrol GetSystemInstanceList dispstatus did not match expected value ${values.expected_instance_status} for at least one instance.

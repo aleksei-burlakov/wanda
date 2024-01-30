@@ -1,0 +1,98 @@
+id: "WOOJ3M"
+name: Polkit rules for SAP instance systemd services
+group: Sapservices
+description: |
+  A polkit rule should exist for each SAP instance that is started with systemd.
+remediation: |
+  ## Abstract
+  Create a rule file for each SAP instance in /etc/polkit-1/rules.d/10-SAP${SID}-${inst}.rules.
+
+  ## Remediation
+  Create a rule file in /etc/polkit-1/rules.d/10-SAP${SID}-${inst}.rules with the following content:
+
+  ```
+  polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units") {
+        if (subject.user == "${sid}adm" && action.lookup("unit") == "SAP${SID}_${inst}.service"  &&
+            (action.lookup("verb") == "restart" || action.lookup("verb") == "stop" || action.lookup("verb") == "start")) {
+            return polkit.Result.YES;
+        }
+    }
+  });
+
+  ```
+
+  ## Reference
+
+  - https://me.sap.com/notes/3139184
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: cib
+    gatherer: cibadmin
+  - name: sapservices
+    gatherer: sapservices@v1
+  - name: polkit_instance_rules
+    gatherer: dir_scan@v1
+    argument: "/etc/polkit-1/rules.d/[0-9][0-9]-SAP[A-Z][A-Z0-9][A-Z0-9]-[0-9][0-9].rules"
+
+expectations:
+  - name: polkit_instance_rules_exist
+    expect: |
+      // TODO: define where to get SIDs from
+      // cluster instance list
+      let cluster_instances = [];
+      for group in facts.cib["cib"]["configuration"]["resources"]["group"] {
+        for primitive in group["primitive"] {
+          let prim = #{};
+          if primitive["type"] == "SAPInstance" {
+            prim += #{"rsc_id": primitive["id"]};
+            for nvpair in primitive["instance_attributes"]["nvpair"] {
+              if nvpair["name"] == "InstanceName" {
+                  let instname = nvpair["value"];
+                  prim += #{"sid": instname.split("_")[0]};
+                  prim += #{"inst": instname.split("_")[1].sub_string(-2)};
+                  prim += #{"vhost": instname.split("_")[2]};
+              }
+            }
+            cluster_instances.push(prim);
+          }
+        }
+      }
+      // if systemd enabled, add instance to list
+      let sapservices_systemd = [];
+      for service in facts.sapservices {
+        let i = #{};
+        let instname = service["content"].split(" start ")[1].split(" ")[0];
+        i += #{"sid": instname.split("SAP")[1].split("_")[0]};
+        i += #{"inst": instname.split("SAP")[1].split("_")[1]};
+        i += #{"systemd": service["content"].starts_with("systemctl")};
+        sapservices_systemd.push(i);
+      }
+      // simple rules list
+      let rules = [];
+      for rule in facts.polkit_instance_rules {
+        rules.push(rule["name"]);
+      }
+      // loop cluster_instances and systemd enabled sapservices to find polkit rule
+      let ret = [];
+      for cl_inst in cluster_instances {
+        for inst in sapservices_systemd {
+          if inst["systemd"] == true && inst["sid"] == cl_inst["sid"] && inst["inst"] == cl_inst["inst"] {
+            ret.push(rules.contains("/etc/polkit-1/rules.d/10-SAP" + cl_inst["sid"] + "-" + cl_inst["inst"] + ".rules"));
+          }
+        }
+      }
+      return ret.all(|v| v == true);
+    failure_message: Make sure a polkit rule exists for each SAP instance that is started with systemd. 

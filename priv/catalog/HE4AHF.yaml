@@ -1,0 +1,77 @@
+id: "HE4AHF"
+name: ASCS and ERS instance profiles load HA script connector
+group: SAP profiles
+description: |
+  Integrate the cluster framework by using sap-suse-cluster-connector. The HA Script connector has to be loaded by the ASCS and ERS instance profiles.
+remediation: |
+  ## Abstract
+  The HA script connectors are not loaded correctely.
+
+  ## Remediation
+  Make sure to include these lines into your ASCS and ERS instance profiles:
+
+  ```
+  service/halib = $(DIR_EXECUTABLE)/saphascriptco.so
+  service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
+  ```
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-integrating-the-cluster-framework-using-sap-suse-cluster-connector
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-integrating-the-cluster-framework-using-sap-suse-cluster-connector
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-integrating-the-cluster-framework-using-sap-suse-cluster-connector
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-integrating-the-cluster-framework-using-sap-suse-cluster-connector
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-integrating-the-cluster-framework-using-sap-suse-cluster-connector
+
+  VMware:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-integrating-the-cluster-framework-using-sap-suse-cluster-connector
+
+severity: critical
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: sap_profiles
+    gatherer: sap_profiles@v1
+
+expectations:
+  - name: ascs_ers_halib_enabled
+    expect: |
+      let ret = [];
+      // TODO: define where to get SIDs from
+      for sid in facts.sap_profiles.keys() {
+        for inst in facts.sap_profiles[sid]["profiles"] {
+          if inst["name"].contains("ASCS") || inst["name"].contains("ERS") {
+             ret.push("service/halib" in inst["content"]);
+             ret.push(inst["content"]["service/halib"] == "$(DIR_CT_RUN)/saphascriptco.so");
+             ret.push("service/halib_cluster_connector" in inst["content"]);
+             ret.push(inst["content"]["service/halib_cluster_connector"] == "/usr/bin/sap_suse_cluster_connector");
+          }          
+        }
+      }
+      return ret.all(|v| v == true);
+    failure_message: The HA script connectors are not loaded correctely inside the ASCS and ERS instance profiles.

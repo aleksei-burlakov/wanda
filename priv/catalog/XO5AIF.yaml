@@ -1,0 +1,90 @@
+id: "XO5AIF"
+name: HA interface Config Check
+group: Sapcontrol - HA
+description: |
+  HA interface Config Checks return "OK/SUCCESS" for all configurations on all SIDs and Instances.
+  `sapcontrol -function HACheckConfig` returns "OK/SUCCESS".
+remediation: |
+  ## Abstract
+  The HA interface Config Check returned Errors.
+
+  ## Remediation
+  Above problem could happen due to several reasons. E.g.
+  
+    1. The <SID>adm user in not part of haclient group.
+    2. The cluster use ACL to control access and haclient doesn't have the needed rights.
+    3. The ASCS/ERS resource contains wrong parameters. 
+    4. The ownership of the <SID>adm user /home/<SID>adm/.config directory is not set correctly to <SID>adm:sapsys.
+    5. On SLE15 SP5 the packages crmsh and crmsh-scripts are not on the latest patch level and should have at least version crmsh-4.4.0+20221028.3e41444-150400.3.9.1
+    6. /var/lib/heartbeat/cores/hacluster directory needs group read/execute permission (chmod 750 /var/lib/heartbeat/cores/hacluster)
+
+  ## References
+  AZURE:
+
+    - https://www.suse.com/support/kb/doc/?id=000019924
+    - https://www.suse.com/support/kb/doc/?id=000019613
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-integrating-sap-s4hana-into-the-cluster-using-the-cluster-connector
+
+  AWS:
+
+    - https://www.suse.com/support/kb/doc/?id=000019924
+    - https://www.suse.com/support/kb/doc/?id=000019613
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-integrating-sap-s4hana-into-the-cluster-using-the-cluster-connector
+
+  GCP:
+
+    - https://www.suse.com/support/kb/doc/?id=000019924
+    - https://www.suse.com/support/kb/doc/?id=000019613
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-integrating-sap-s4hana-into-the-cluster-using-the-cluster-connector
+
+  SUSE / KVM:
+
+    - https://www.suse.com/support/kb/doc/?id=000019924
+    - https://www.suse.com/support/kb/doc/?id=000019613
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-integrating-sap-s4hana-into-the-cluster-using-the-cluster-connector
+
+  Nutanix:
+
+    - https://www.suse.com/support/kb/doc/?id=000019924
+    - https://www.suse.com/support/kb/doc/?id=000019613
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-integrating-sap-s4hana-into-the-cluster-using-the-cluster-connector
+
+  VMware:
+
+    - https://www.suse.com/support/kb/doc/?id=000019924
+    - https://www.suse.com/support/kb/doc/?id=000019613
+    - https://documentation.suse.com/sbp/sap/single-html/SAP-S4HA10-setupguide-simplemount-sle15/#id-integrating-sap-s4hana-into-the-cluster-using-the-cluster-connector
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: ha_check_config
+    gatherer: sapcontrol@v1
+    argument: HACheckConfig
+
+values:
+  - name: expected_ha_check_config
+    default: SAPControl-HA-SUCCESS
+
+expectations:
+  - name: ha_check_config_success
+    expect: |
+      let ret = [];
+      // TODO: define where to get SIDs from
+      for sid in facts.ha_check_config.keys() {
+          for inst in facts.ha_check_config[sid] {
+              for entry in inst["output"] {
+                  ret.push(entry["state"]);    
+              }
+          }
+      }
+      return ret.all(|v| v == values.expected_ha_check_config);
+    failure_message: Sapcontrol HACheckConfig did not match expected value ${values.expected_ha_check_config} for at least one category.

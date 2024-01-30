@@ -1,0 +1,67 @@
+id: "JAEPH7"
+name: Message server restart is enabled on ASCS instance
+group: SAP profiles
+description: |
+  The message server restart has to be enabled for the ASCS instance. A restart is not harmfull and increases availability.
+remediation: |
+  ## Abstract
+  The message server restart is disabled and has to be enabled.
+
+  ## Remediation
+  Make sure to change `Start_Program_00 = local $(_MS) pf=$(_PF)` to `Restart_Program_00 = local $(_MS) pf=$(_PF)` in the ASCS profile.
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+  VMware:
+
+    - https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE12/index.html#id-adapting-sap-profiles-to-match-the-sap-s4-ha-clu-1-0-certification
+
+severity: critical
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: sap_profiles
+    gatherer: sap_profiles@v1
+
+expectations:
+  - name: ms_startmode_is_restart
+    expect: |
+      // TODO: define where to get SIDs from
+      for sid in facts.sap_profiles.keys() {
+        for inst in facts.sap_profiles[sid]["profiles"] {
+          if inst["name"].contains("ASCS") {
+            return "Restart_Program_00" in inst["content"] == true;
+          }
+        }
+      }
+    failure_message: The message server restart is disabled and has to be enabled.

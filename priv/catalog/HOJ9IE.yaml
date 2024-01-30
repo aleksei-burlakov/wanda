@@ -1,0 +1,75 @@
+id: "HOJ9IE"
+name: Number of clustered SAP intances matches
+group: CIB
+description: |
+  Match the number of configured SAP instances in the cluster with actual running instances. 
+remediation: |
+  ## Abstract
+  Not all SAP instances that are configured in the cluster are actually running.
+
+  ## Remediation
+  Check why your Instances are having issues by looking at the systems and Instances log files.
+  
+  ## References
+  AZURE:
+
+  AWS:
+
+  GCP:
+
+  SUSE / KVM:
+
+  Nutanix:
+
+  VMware:
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: cib
+    gatherer: cibadmin
+  - name: system_instance_list
+    gatherer: sapcontrol@v1
+    argument: GetSystemInstanceList
+
+expectations:
+  - name: instance_count
+    expect: |
+      // TODO: define where to get SIDs from
+      let cluster_instances = [];
+      for group in facts.cib["cib"]["configuration"]["resources"]["group"] {
+        for primitive in group["primitive"] {
+          let prim = #{};
+          if primitive["type"] == "SAPInstance" {
+            prim += #{"rsc_id": primitive["id"]};
+            for nvpair in primitive["instance_attributes"]["nvpair"] {
+              if nvpair["name"] == "InstanceName" {
+                let instname = nvpair["value"];
+                prim += #{"sid": instname.split("_")[0]};
+                prim += #{"inst": instname.split("_")[1].sub_string(-2)};
+                prim += #{"vhost": instname.split("_")[2]};
+              }
+            }
+            cluster_instances.push(prim);
+          }
+        }
+      }
+      let running_instance_count = 0;
+      let running_instance_diff = cluster_instances.len;
+      for cl_inst in cluster_instances {
+        for inst in facts.system_instance_list[cl_inst["sid"]] {
+          if cl_inst["inst"] == inst["instance_nr"] {
+            running_instance_count += 1;
+          }
+        }
+      }
+      return cluster_instances.len == running_instance_count;      
+    failure_message: Not all SAP instances that are configured in the cluster are acutally running.

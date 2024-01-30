@@ -1,0 +1,42 @@
+id: "JAE0EE"
+name: No /usr/sap fstab entry
+group: Simple Mount
+description: |
+  As /usr/sap contains the SAP control file sapservices and the saphostagent, the directory should not be placed on a shared file system (NFS) between the cluster nodes.
+  No fstab entry for /usr/sap on NFS should exist.
+remediation: |
+  ## Abstract
+  Make sure to not mount /usr/sap on NFS in fstab.
+
+  ## Reference
+
+  - https://documentation.suse.com/sbp/sap-15/single-html/SAP-S4HA10-setupguide-simplemount-sle15/index.html#id-creating-mount-points-and-nfs-shares
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: fstab
+    gatherer: fstab@v1
+
+expectations:
+  - name: expectations_fstab_no_usr_sap
+    expect: |
+      let ret = [];
+      for line in facts.fstab {
+        if line["mount_point"].ends_with("/usr/sap") {
+          // return true if shared fs (nfs) is found
+          ret.push(line["file_system_type"].starts_with("nfs"));
+        }
+      }
+      return ret.all(|v| v == false);
+    failure_message: There are fstab entries for /usr/sap on NFS.

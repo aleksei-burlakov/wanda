@@ -1,0 +1,39 @@
+id: "PHO1AI"
+name: Saphostagent systemd services is enabled and started
+group: Saphostagent
+description: |
+  The Saphostagent systemd services is enabled and started.
+remediation: |
+  ## Abstract
+  Make sure saphostagent is enabled and started.
+
+  ## Reference
+
+  - https://documentation.suse.com/sbp/sap-15/single-html/SAP-S4HA10-setupguide-simplemount-sle15/index.html#id-disabling-systemd-services-of-the-ascs-and-the-ers-sap-instance
+
+premium: true
+
+metadata:
+  target_type: cluster
+  cluster_type: ascs_ers
+  ensa_version: 
+    - ensa1
+    - ensa2
+  fs_type: 
+    - classic
+    - simplemount
+
+facts:
+  - name: service_saphostagent
+    gatherer: systemd@v2
+    argument: saphostagent.service
+
+expectations:
+  - name: expectations_saphostagent_active
+    expect: |
+      return facts.service_saphostagent["active_state"].starts_with("active")
+    failure_message: The saphostagent service is not active.
+  - name: expectations_saphostagent_enabled
+    expect: |
+      return facts.service_saphostagent["unit_file_state"].starts_with("enabled")
+    failure_message: The saphostagent service is not enabled at boot time.
