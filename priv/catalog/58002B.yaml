@@ -32,6 +32,9 @@ remediation: |
 
 premium: true
 
+metadata:
+  target_type: cluster
+
 facts:
   - name: order_constraint_present
     gatherer: cibadmin
